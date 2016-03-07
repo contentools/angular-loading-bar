@@ -117,7 +117,8 @@ angular.module('cfp.loadingBarInterceptor', ['cfp.loadingBar'])
               // the request is a standard request, so increment the total requests
               reqsTotal++;
             }
-            cfpLoadingBar.set(reqsCompleted / reqsTotal);
+            // cfpLoadingBar.set(reqsCompleted / reqsTotal);
+            cfpLoadingBar.inc();
           }
           return config;
         },
@@ -125,11 +126,13 @@ angular.module('cfp.loadingBarInterceptor', ['cfp.loadingBar'])
         'response': function(response) {
           if (!response.config.ignoreLoadingBar && !isCached(response.config)) {
             reqsCompleted++;
+            reqsTotal--;
             $rootScope.$broadcast('cfpLoadingBar:loaded', {url: response.config.url});
-            if (reqsCompleted >= reqsTotal) {
+            if (!reqsTotal) {
               setComplete();
             } else {
-              cfpLoadingBar.set(reqsCompleted / reqsTotal);
+              // cfpLoadingBar.set(reqsCompleted / reqsTotal);
+              cfpLoadingBar.inc();
             }
           }
           return response;
@@ -138,11 +141,13 @@ angular.module('cfp.loadingBarInterceptor', ['cfp.loadingBar'])
         'responseError': function(rejection) {
           if (!rejection.config.ignoreLoadingBar && !isCached(rejection.config)) {
             reqsCompleted++;
+            reqsTotal--;
             $rootScope.$broadcast('cfpLoadingBar:loaded', {url: rejection.config.url});
-            if (reqsCompleted >= reqsTotal) {
+            if (!reqsTotal) {
               setComplete();
             } else {
-              cfpLoadingBar.set(reqsCompleted / reqsTotal);
+              // cfpLoadingBar.set(reqsCompleted / reqsTotal);
+              cfpLoadingBar.inc();
             }
           }
           return $q.reject(rejection);
